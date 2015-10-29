@@ -16,6 +16,7 @@ You can use install and use Meteor Up from Linux, Mac and Windows.
 
 - [Features](#features)
 - [Server Configuration](#server-configuration)
+    - [SSH-key-based authentication (with passphrase)](#ssh-keys-with-passphrase-or-ssh-agent-support)
 - [Installation](#installation)
 - [Creating a Meteor Up Project](#creating-a-meteor-up-project)
 - [Example File](#example-file)
@@ -82,10 +83,9 @@ This will create two files in your Meteor Up project directory:
     {
       "host": "hostname",
       "username": "root",
-      "password": "password"
+      "password": "password",
       // or pem file (ssh based authentication)
-      // WARNING: Keys protected by a passphrase are not supported
-      //"pem": "~/.ssh/id_rsa"
+      //"pem": "~/.ssh/id_rsa",
       // Also, for non-standard ssh port use this
       //"sshOptions": { "port" : 49154 },
       // server specific environment variables
@@ -105,7 +105,7 @@ This will create two files in your Meteor Up project directory:
   // Install PhantomJS on the server
   "setupPhantom": true,
 
-  // Show a progress bar during the upload of the bundle to the server. 
+  // Show a progress bar during the upload of the bundle to the server.
   // Might cause an error in some rare cases if set to true, for instance in Shippable CI
   "enableUploadProgressBar": true,
 
@@ -150,6 +150,22 @@ This will bundle the Meteor project and deploy it to the server.
 #### Deploy Wait Time
 
 Meteor Up checks if the deployment is successful or not just after the deployment. By default, it will wait 10 seconds before the check. You can configure the wait time with the `deployCheckWaitTime` option in the `mup.json`
+
+#### SSH keys with passphrase (or ssh-agent support)
+
+> This only tested with Mac/Linux
+
+With the help of `ssh-agent`, `mup` can use SSH keys encrypted with a
+passphrase.
+
+Here's the process:
+
+* First remove your `pem` field from the `mup.json`. So, your `mup.json` only has the username and host only.
+* Then start a ssh agent with `eval $(ssh-agent)`
+* Then add your ssh key with `ssh-add <path-to-key>`
+* Then you'll asked to enter the passphrase to the key
+* After that simply invoke `mup` commands and they'll just work
+* Once you've deployed your app kill the ssh agent with `ssh-agent -k`
 
 #### Ssh based authentication with `sudo`
 
@@ -242,7 +258,7 @@ It is possible to provide server specific environment variables. Add the `env` o
     {
       "host": "hostname",
       "username": "root",
-      "password": "password"
+      "password": "password",
       "env": {
         "SOME_ENV": "the-value"
       }
@@ -277,7 +293,7 @@ Meteor Up has the built in SSL support. It uses [stud](https://github.com/bumpte
 * When asked to select your SSL server type, select it as nginx.
 * Then you'll get a set of files (your domain certificate and CA files).
 
-Now you need combine SSL certificate(s) with the private key and save it in the mup config directory as `ssl.pem`. Check this [guide](http://alexnj.com/blog/configuring-a-positivessl-certificate-with-stud.html) to do that.
+Now you need combine SSL certificate(s) with the private key and save it in the mup config directory as `ssl.pem`. Check this [guide](http://alexnj.com/blog/configuring-a-positivessl-certificate-with-stud) to do that.
 
 Then add following configuration to your `mup.json` file.
 
@@ -313,7 +329,7 @@ You should try and keep `mup` up to date in order to keep up with the latest Met
 
 #### Check Access
 
-Your issue might not always be related to Meteor Up. So make sure you can connect to your instance first, and that your credentials are working properly. 
+Your issue might not always be related to Meteor Up. So make sure you can connect to your instance first, and that your credentials are working properly.
 
 #### Check Logs
 If you suddenly can't deploy your app anymore, first use the `mup logs -f` command to check the logs for error messages.
