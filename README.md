@@ -1,6 +1,6 @@
 # Meteor Up X (Development Version)
 
-> This is the latest development version of Meteor Up and known as `mupx`. Once `mupx` became stable we'll merge into master and release as `mup`.
+> This is the latest development version of Meteor Up and known as `mupx`. Once `mupx` becomes stable we'll merge into master and release as `mup`.
 
 #### Production Quality Meteor Deployments
 
@@ -113,7 +113,7 @@ This will create two files in your Meteor Up project directory:
 
   // show a progress bar while uploading.
   // Make it false when you deploy using a CI box.
-  "uploadProgressBar": true
+  "enableUploadProgressBar": true
 }
 ```
 
@@ -141,26 +141,44 @@ This will bundle the Meteor project and deploy it to the server. Bundling proces
 
 When building the meteor app, we can invoke few options. So, you can mention them in `mup.json` like this:
 
-~~~json
+~~~js
 ...
 "buildOptions": {
+  // build with the debug mode on
   "debug": true,
+  // mobile setting for cordova apps
   "mobileSettings": {
     "public": {
       "meteor-up": "rocks"
     }
-  }
+  },
+  // executable used to build the meteor project
+  // you can set a local repo path if needed
+  "executable": "meteor"
 }
 ...
 ~~~
-
-We currently support `debug` and `mobileSettings` only.
 
 ### Additional Setup/Deploy Information
 
 #### Deploy Wait Time
 
 Meteor Up checks if the deployment is successful or not just after the deployment. By default, it will wait 15 seconds before the check. You can configure the wait time with the `deployCheckWaitTime` option in the `mup.json`
+
+#### SSH keys with paraphrase (or ssh-agent support)
+
+> This only tested with Mac/Linux
+
+It's common to use paraphrase enabled SSH keys to add an extra layer of protection to your SSH keys. You can use those keys with `mup` too. In order to do that, you need to use a `ssh-agent`.
+
+Here's the process:
+
+* First remove your `pem` field from the `mup.json`. So, your `mup.json` only has the username and host only.
+* Then start a ssh agent with `eval $(ssh-agent)`
+* Then add your ssh key with `ssh-add <path-to-key>`
+* Then you'll asked to enter the paraphrase to the key
+* After that simply invoke `mup` commands and they'll just work
+* Once you've deployed your app kill the ssh agent with `ssh-agent -k`
 
 #### Ssh based authentication with `sudo`
 
